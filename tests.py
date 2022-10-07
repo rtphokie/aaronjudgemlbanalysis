@@ -12,8 +12,13 @@ class MyTestCase(unittest.TestCase):
 
     def test_playbyplay(self):
         uut = mlbapi()
-        result = uut.playbyplay(662062)
-        pprint(result)
+        # df = uut.playByPlay(662010) # 62
+        df = uut.playByPlay(661301) # 10
+        print(df[df['result'] == 'Home Run'])
+        print(df)
+        # result = uut.playByPlay(706889)
+        # ts=list(result.keys())
+        # # pprint(result[ts[0]])
 
     def test_players(self):
         uut = mlbapi()
@@ -28,25 +33,7 @@ class MyTestCase(unittest.TestCase):
         self.assertGreaterEqual(len(result), 180)
         for gamePk, data in result.items():
             print(gamePk, data['gameDate'])
-
-    @unittest.skip('broke')
-    def test_something(self):
-        uut = mlbapi()
-        day = datetime(2022, 3, 1)
-        current_date = datetime(2022, 5, 1)
-        str = "<table>\n<TH>0</TH><TD>"
-        hr = 0
-        while day <= current_date:
-            day += timedelta(days=1)
-            atbats, links = uut.schedule(date=day)
-            if len(links) < 1:
-                continue
-            # print(day, hr, links, gamestr)
-            if 'E' in gamestr:
-                hr += gamestr.count('E')
-                str += f"</tr>\n<th>{hr}</th><td>"
-            str += gamestr
-        print(str)
+        # pprint(result)
 
 
 if __name__ == '__main__':
