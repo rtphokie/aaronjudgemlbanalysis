@@ -1,6 +1,6 @@
 import unittest
-from pprint import pprint
 from mlbapi import mlbapi
+
 
 class MyTestCase(unittest.TestCase):
     def test_team(self):
@@ -12,13 +12,8 @@ class MyTestCase(unittest.TestCase):
 
     def test_playbyplay(self):
         uut = mlbapi()
-        # df = uut.playByPlay(662010) # 62
-        df = uut.playByPlay(661301) # 10
-        print(df[df['result'] == 'Home Run'])
-        print(df)
-        # result = uut.playByPlay(706889)
-        # ts=list(result.keys())
-        # # pprint(result[ts[0]])
+        df = uut.playByPlay(661301)  # 10
+        self.assertGreaterEqual(df.shape[0], 76)
 
     def test_players(self):
         uut = mlbapi()
@@ -29,11 +24,8 @@ class MyTestCase(unittest.TestCase):
 
     def test_season(self):
         uut = mlbapi()
-        result = uut.schedule(year=2022, team='Yankees')
-        self.assertGreaterEqual(len(result), 180)
-        for gamePk, data in result.items():
-            print(gamePk, data['gameDate'])
-        # pprint(result)
+        result = uut.schedule(year=2022, team='New York Yankees')
+        self.assertEqual(len(result), 186)
 
 
 if __name__ == '__main__':

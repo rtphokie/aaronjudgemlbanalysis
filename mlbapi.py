@@ -23,6 +23,7 @@ class mlbapi(object):
         self.teams_byname, self.teams_byid, self.teams_bycode = self.teams()
 
     def teams(self, sportId=1):
+        # team names short and long, abbreviations tc.
         url = f"{self.base}/api/v1/teams?sportId={sportId}"
         r = self.session_cached.get(url)
         data = r.json()
@@ -30,7 +31,7 @@ class mlbapi(object):
         byid = {}
         bycode = {}
         for teamdata in data['teams']:
-            byname[teamdata['clubName']] = teamdata
+            byname[teamdata['name']] = teamdata
             byid[teamdata['id']] = teamdata
             bycode[teamdata['fileCode']] = teamdata
         return byname, byid, bycode
@@ -60,7 +61,7 @@ class mlbapi(object):
         return result
 
     def playByPlay(self, gamePk):
-        url = f"http://statsapi.mlb.com/api/v1/game/{gamePk}/playByPlay"
+        url = f"{self.base}/api/v1/game/{gamePk}/playByPlay"
         r = self.session_cached.get(url)
         data = r.json()
 
@@ -88,11 +89,14 @@ class mlbapi(object):
                      'pitcherId': playdata['matchup']['pitcher']['id'], 'pitcherFullName': playdata['matchup']['pitcher']['fullName']}
                 desccntmatch= re.search("[homersi|hits a grand slam] \((\d+)\)", playdata['result']['description'])
                 if desccntmatch and row['result'] == 'Home Run':
-                    row['homeRunCnt']=desccntmatch.group(1)
+                    row['homeRunCnt']=int(desccntmatch.group(1))
 
             for playevent in playdata['playEvents']:
                 if playevent['isPitch']:
-                    row['calls'].append(playevent['details']['code'])
+                    row['calls'].append(playevent['details']['code'].replace('*', ''))
+                    if playevent['details']['code'] not in self.calldesc.keys():
+                        self.calldesc[playevent['details']['code']]=playevent['details']['call']
+
                     if 'type' in playevent['details']:
                         row['finalPitchType']=playevent['details']['type']['description']
                     if 'endSpeed' in playevent['pitchData']:
@@ -110,7 +114,7 @@ class mlbapi(object):
         return df
 
     def players(self, firstName=None, lastName=None, currentTeam=None):
-        url = f"http://statsapi.mlb.com/api/v1/sports/1/players"
+        url = f"{self.base}/api/v1/sports/1/players"
         r = self.session_cached.get(url)
         data = r.json()
         results = {}
